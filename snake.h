@@ -5,6 +5,7 @@
 
 #include <memory>
 #include "olcPixelGameEngine.h"
+#include "food.h"
 
 namespace raysnake
 {
@@ -16,6 +17,7 @@ namespace raysnake
 	private:
 		int snakesize;
 		std::unique_ptr<olc::vi2d[]> body;
+		std::unique_ptr<raysnake::Food> foods;
 
 		olc::vi2d gamearea;
 		Snake_Direction direction;
@@ -34,6 +36,7 @@ namespace raysnake
 		: snakesize{size}
 		, body{new olc::vi2d[size]}
 		, gamearea{area}
+		, foods{new raysnake::Food(size, area)}
 	{
 		direction = Snake_Direction::Down;
 		for (int i = 0; i < size; i++)

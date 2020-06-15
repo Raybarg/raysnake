@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include=".gitattributes" />
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +149,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="img\play_button.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="img\play_button_hover.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="img\play_button_pressed.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
