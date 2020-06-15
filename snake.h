@@ -18,6 +18,7 @@ namespace raysnake
 		int snakesize;
 		std::unique_ptr<olc::vi2d[]> body;
 		std::unique_ptr<raysnake::Food> foods;
+		int scale;
 
 		olc::vi2d gamearea;
 		Snake_Direction direction;
@@ -25,18 +26,19 @@ namespace raysnake
 		int head;
 
 	public:
-		Snake(int size, olc::vi2d);
+		Snake(int size, olc::vi2d, int scale);
 
 		void handleinput(olc::PixelGameEngine*);
 		void draw(olc::PixelGameEngine*);
 		bool move();
 	};
 
-	Snake::Snake(int size, olc::vi2d area)
+	Snake::Snake(int size, olc::vi2d area, int gamescale)
 		: snakesize{size}
 		, body{new olc::vi2d[size]}
 		, gamearea{area}
 		, foods{new raysnake::Food(size, area)}
+		, scale{gamescale}
 	{
 		direction = Snake_Direction::Down;
 		for (int i = 0; i < size; i++)
@@ -72,17 +74,19 @@ namespace raysnake
 
 	void Snake::draw(olc::PixelGameEngine* pge)
 	{
+		olc::vi2d drawPos;
 		int head_tmp = head;
 
 		while(true)
 		{
+			drawPos = body[head_tmp] * scale;
 			if (head_tmp == head)
 			{
-				pge->Draw(body[head_tmp], olc::RED);
+				pge->FillRect(drawPos, olc::vi2d{ scale, scale }, olc::RED);
 			}
 			else
 			{
-				pge->Draw(body[head_tmp], olc::WHITE);
+				pge->FillRect(drawPos, olc::vi2d{ scale, scale }, olc::WHITE);
 			}
 			if (head_tmp == tail) break;
 			head_tmp++;

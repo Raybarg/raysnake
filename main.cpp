@@ -3,9 +3,10 @@
 #include "olcPixelGameEngine.h"
 #include "snake.h"
 
-#define SNAKE_SIZE 200
+#define GAME_SCALE 4
 #define GAME_WIDTH 200
 #define GAME_HEIGHT 160
+#define SNAKE_SIZE GAME_WIDTH * GAME_HEIGHT
 
 class Example : public olc::PixelGameEngine
 {
@@ -33,7 +34,7 @@ public:
 public:
 	bool OnUserCreate() override
 	{
-		snake = new raysnake::Snake(SNAKE_SIZE, olc::vi2d{ GAME_WIDTH, GAME_HEIGHT });
+		snake = new raysnake::Snake(SNAKE_SIZE, olc::vi2d{ GAME_WIDTH, GAME_HEIGHT }, GAME_SCALE);
 
 		btnPlay = std::make_unique<olc::Sprite>("./img/play_button.png");
 		btnPlayHover = std::make_unique<olc::Sprite>("./img/play_button_hover.png"); 
@@ -72,15 +73,20 @@ public:
 
 			break;
 		case gamestate::Menu:
+
+			olc::vi2d btnPos = olc::vi2d{ (GAME_WIDTH * GAME_SCALE) / 2 - 50, 150 };
+
 			Clear(bgc);
 			SetPixelMode(olc::Pixel::MASK);
 
-			if (GetMouseX() >= 50 && GetMouseX() <= 150 &&
-				GetMouseY() >= 50 && GetMouseY() <= 100)
+			MyDrawString(olc::vi2d{ GAME_WIDTH, 30 }, "Raybarg's Snake", olc::DARK_GREEN, GAME_SCALE);
+
+			if (GetMouseX() >= ((GAME_WIDTH * GAME_SCALE) / 2 - 50) && GetMouseX() <= ((GAME_WIDTH * GAME_SCALE) / 2 + 50) &&
+				GetMouseY() >= 150 && GetMouseY() <= 200)
 			{
 				if (GetMouse(0).bHeld)
 				{
-					DrawSprite(olc::vi2d{ 50, 50 }, btnPlayPressed.get());
+					DrawSprite(btnPos, btnPlayPressed.get());
 				}
 				else
 				{
@@ -89,14 +95,14 @@ public:
 					}
 					else
 					{
-						DrawSprite(olc::vi2d{ 50, 50 }, btnPlayHover.get());
+						DrawSprite(btnPos, btnPlayHover.get());
 					}
 				}
 
 			}
 			else
 			{
-				DrawSprite(olc::vi2d{ 50, 50 }, btnPlay.get());
+				DrawSprite(btnPos, btnPlay.get());
 			}
 
 			break;
@@ -106,12 +112,20 @@ public:
 
 		return true;
 	}
+
+	void MyDrawString(olc::vi2d pos, std::string str, olc::Pixel color, int scale)
+	{
+		int length = str.length();
+		olc::vi2d txtPos = { pos.x - length * 4, pos.y - 4 };
+		DrawString(txtPos, str, color, scale);
+	}
+
 };
 
 int main()
 {
 	Example demo;
-	if (demo.Construct(GAME_WIDTH, GAME_HEIGHT, 2, 2))
+	if (demo.Construct(GAME_WIDTH * GAME_SCALE, GAME_HEIGHT * GAME_SCALE, 1, 1))
 		demo.Start();
 	return 0;
 }
