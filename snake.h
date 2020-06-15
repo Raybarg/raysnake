@@ -31,7 +31,7 @@ namespace raysnake
 
 		void handleinput(olc::PixelGameEngine*);
 		void draw(olc::PixelGameEngine*);
-		bool move();
+		int move();
 		void reset();
 	};
 
@@ -88,8 +88,9 @@ namespace raysnake
 		foods->draw(pge);
 	}
 
-	bool Snake::move()
+	int Snake::move()
 	{
+		int retval = 0;
 		olc::vi2d temp = body[head];
 		switch (direction)
 		{
@@ -111,7 +112,7 @@ namespace raysnake
 		for (int i = 0; i < snakesize; i++)
 		{
 			if ((body[i].x == temp.x) && (body[i].y == temp.y) && (head != i) && (head < tail))
-				return true;
+				retval = 1;
 		}
 
 		if (!foods->collision(body[head]))
@@ -119,6 +120,10 @@ namespace raysnake
 			body[tail].x = -1;
 			body[tail].y = -1;
 			tail--;
+		}
+		else
+		{
+			retval = 2;
 		}
 		head--;
 
@@ -130,10 +135,10 @@ namespace raysnake
 		if (body[head].x > gamearea.x || body[head].y > gamearea.y ||
 			body[head].x <= 0 || body[head].y <= 0)
 		{
-			return true;
+			retval = 1;
 		}
 
-		return false;
+		return retval;
 	}
 
 	void Snake::reset()
