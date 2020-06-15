@@ -62,13 +62,16 @@ public:
 				return true; // Don't do anything this frame
 
 			Clear(bgc);
+			DrawRect(olc::vi2d{ 0,0 }, olc::vi2d{ GAME_WIDTH * GAME_SCALE - 1, GAME_HEIGHT * GAME_SCALE - 1 }, olc::DARK_GREEN);
+			DrawRect(olc::vi2d{ GAME_SCALE, GAME_SCALE }, olc::vi2d{ (GAME_WIDTH-1) * GAME_SCALE - GAME_SCALE, (GAME_HEIGHT-1) * GAME_SCALE - GAME_SCALE }, olc::DARK_GREEN);
 
 			// Draw and move snake
 			snake->draw(this);
 
 			if (snake->move())
 			{
-				bgc = olc::RED;
+				state = gamestate::Menu;
+				snake->reset();
 			}
 
 			break;
@@ -98,7 +101,6 @@ public:
 						DrawSprite(btnPos, btnPlayHover.get());
 					}
 				}
-
 			}
 			else
 			{

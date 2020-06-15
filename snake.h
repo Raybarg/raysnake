@@ -31,6 +31,7 @@ namespace raysnake
 		void handleinput(olc::PixelGameEngine*);
 		void draw(olc::PixelGameEngine*);
 		bool move();
+		void reset();
 	};
 
 	Snake::Snake(int size, olc::vi2d area, int gamescale)
@@ -40,16 +41,7 @@ namespace raysnake
 		, foods{new raysnake::Food(size, area)}
 		, scale{gamescale}
 	{
-		direction = Snake_Direction::Down;
-		for (int i = 0; i < size; i++)
-			body[i] = olc::vi2d{ 0,0 };
-		body[0] = olc::vi2d{ 20, 21 };
-		body[1] = olc::vi2d{ 20, 20 };
-		body[2] = olc::vi2d{ 20, 19 };
-		body[3] = olc::vi2d{ 20, 18 };
-		body[4] = olc::vi2d{ 20, 17 };
-		head = 0;
-		tail = 4;
+		reset();
 	}
 
 	void Snake::handleinput(olc::PixelGameEngine* pge)
@@ -125,7 +117,7 @@ namespace raysnake
 		if (head < 0) head += snakesize;
 		body[head] = temp;
 
-		//tail--;
+		tail--;
 		if (tail < 0) tail += snakesize;
 
 		// Area boundaries
@@ -140,6 +132,19 @@ namespace raysnake
 		return false;
 	}
 
+	void Snake::reset()
+	{
+		direction = Snake_Direction::Down;
+		for (int i = 0; i < snakesize; i++)
+			body[i] = olc::vi2d{ 0,0 };
+		body[0] = olc::vi2d{ 20, 21 };
+		body[1] = olc::vi2d{ 20, 20 };
+		body[2] = olc::vi2d{ 20, 19 };
+		body[3] = olc::vi2d{ 20, 18 };
+		body[4] = olc::vi2d{ 20, 17 };
+		head = 0;
+		tail = 4;
+	}
 }
 
 #endif // RAYSNAKE_SNAKE_H_
