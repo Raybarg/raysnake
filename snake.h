@@ -3,6 +3,7 @@
 #ifndef RAYSNAKE_SNAKE_H_
 #define RAYSNAKE_SNAKE_H_
 
+#include <cstdlib>
 #include <memory>
 #include "olcPixelGameEngine.h"
 #include "food.h"
@@ -13,11 +14,11 @@ namespace raysnake
 	{
 	public:
 		enum class Snake_Direction { Up, Down, Left, Right };
+		std::unique_ptr<raysnake::Food> foods;
 
 	private:
 		int snakesize;
 		std::unique_ptr<olc::vi2d[]> body;
-		std::unique_ptr<raysnake::Food> foods;
 		int scale;
 
 		olc::vi2d gamearea;
@@ -38,7 +39,7 @@ namespace raysnake
 		: snakesize{size}
 		, body{new olc::vi2d[size]}
 		, gamearea{area}
-		, foods{new raysnake::Food(size, area)}
+		, foods{new raysnake::Food(size, area, gamescale)}
 		, scale{gamescale}
 	{
 		reset();
@@ -84,6 +85,7 @@ namespace raysnake
 			head_tmp++;
 			if (head_tmp > (snakesize-1)) head_tmp = 0;
 		}
+		foods->draw(pge);
 	}
 
 	bool Snake::move()
@@ -108,16 +110,20 @@ namespace raysnake
 		// Body collision
 		for (int i = 0; i < snakesize; i++)
 		{
-			if ((body[i].x == temp.x) && (body[i].y == temp.y) && (head != i) && (head > tail))
+			if ((body[i].x == temp.x) && (body[i].y == temp.y) && (head != i) && (head < tail))
 				return true;
 		}
 
+		if (!foods->collision(body[head]))
+		{
+			body[tail].x = -1;
+			body[tail].y = -1;
+			tail--;
+		}
 		head--;
 
 		if (head < 0) head += snakesize;
 		body[head] = temp;
-
-		tail--;
 		if (tail < 0) tail += snakesize;
 
 		// Area boundaries
@@ -126,8 +132,6 @@ namespace raysnake
 		{
 			return true;
 		}
-
-
 
 		return false;
 	}
@@ -144,6 +148,7 @@ namespace raysnake
 		body[4] = olc::vi2d{ 20, 17 };
 		head = 0;
 		tail = 4;
+		foods->reset();
 	}
 }
 

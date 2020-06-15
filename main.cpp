@@ -3,16 +3,16 @@
 #include "olcPixelGameEngine.h"
 #include "snake.h"
 
-#define GAME_SCALE 4
-#define GAME_WIDTH 200
-#define GAME_HEIGHT 160
+#define GAME_SCALE 8
+#define GAME_WIDTH 130
+#define GAME_HEIGHT 80
 #define SNAKE_SIZE GAME_WIDTH * GAME_HEIGHT
 
 class Example : public olc::PixelGameEngine
 {
 private:
 	enum class gamestate {Menu, Game};
-	float FrameTime = 1.0f / 50.0f; // Virtual FPS of 100fps
+	float FrameTime = 1.0f / 20.0f; // Virtual FPS of 100fps
 	float AccumulatedTime = 0.0f;
 	olc::Pixel bgc = olc::BLACK;
 	std::unique_ptr<olc::Sprite> btnPlay;
@@ -44,6 +44,9 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		Clear(bgc);
+		// Draw and move snake
+		snake->draw(this);
 
 		switch (state)
 		{
@@ -57,29 +60,28 @@ public:
 			{
 				AccumulatedTime -= FrameTime;
 				fElapsedTime = FrameTime;
-			}
-			else
-				return true; // Don't do anything this frame
 
-			Clear(bgc);
-			DrawRect(olc::vi2d{ 0,0 }, olc::vi2d{ GAME_WIDTH * GAME_SCALE - 1, GAME_HEIGHT * GAME_SCALE - 1 }, olc::DARK_GREEN);
-			DrawRect(olc::vi2d{ GAME_SCALE, GAME_SCALE }, olc::vi2d{ (GAME_WIDTH-1) * GAME_SCALE - GAME_SCALE, (GAME_HEIGHT-1) * GAME_SCALE - GAME_SCALE }, olc::DARK_GREEN);
+				DrawRect(olc::vi2d{ 0,0 }, olc::vi2d{ GAME_WIDTH * GAME_SCALE - 1, GAME_HEIGHT * GAME_SCALE - 1 }, olc::DARK_GREEN);
+				DrawRect(olc::vi2d{ GAME_SCALE, GAME_SCALE }, olc::vi2d{ (GAME_WIDTH - 1) * GAME_SCALE - GAME_SCALE, (GAME_HEIGHT - 1) * GAME_SCALE - GAME_SCALE }, olc::DARK_GREEN);
 
-			// Draw and move snake
-			snake->draw(this);
+				if (rand() % 10 <= 1)
+					snake->foods->add();
 
-			if (snake->move())
-			{
-				state = gamestate::Menu;
-				snake->reset();
+				if (snake->move())
+				{
+					state = gamestate::Menu;
+					snake->reset();
+				}
 			}
 
 			break;
 		case gamestate::Menu:
+			SetPixelMode(olc::Pixel::ALPHA);
+			FillRect(olc::vi2d{ 0,0 }, olc::vi2d{ GAME_WIDTH * GAME_SCALE - 1, GAME_HEIGHT * GAME_SCALE - 1 }, olc::GREY);
+			SetPixelMode(olc::Pixel::NORMAL);
 
 			olc::vi2d btnPos = olc::vi2d{ (GAME_WIDTH * GAME_SCALE) / 2 - 50, 150 };
 
-			Clear(bgc);
 			SetPixelMode(olc::Pixel::MASK);
 
 			MyDrawString(olc::vi2d{ GAME_WIDTH, 30 }, "Raybarg's Snake", olc::DARK_GREEN, GAME_SCALE);
@@ -109,16 +111,13 @@ public:
 
 			break;
 		}
-
-
-
 		return true;
 	}
 
 	void MyDrawString(olc::vi2d pos, std::string str, olc::Pixel color, int scale)
 	{
 		int length = str.length();
-		olc::vi2d txtPos = { pos.x - length * 4, pos.y - 4 };
+		olc::vi2d txtPos = { pos.x - length * GAME_SCALE, pos.y - GAME_SCALE };
 		DrawString(txtPos, str, color, scale);
 	}
 
