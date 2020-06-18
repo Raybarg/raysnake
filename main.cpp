@@ -3,9 +3,9 @@
 #include "olcPixelGameEngine.h"
 #include "snake.h"
 
-#define GAME_SCALE 8
-#define GAME_WIDTH 140
-#define GAME_HEIGHT 80
+#define GAME_SCALE 12
+#define GAME_WIDTH 70
+#define GAME_HEIGHT 50
 #define SNAKE_SIZE GAME_WIDTH * GAME_HEIGHT
 
 class Example : public olc::PixelGameEngine
@@ -22,6 +22,7 @@ private:
 	int btnY = 250;
 	bool gameover = false;
 	int score = 0;
+	bool changeddirection = false;
 
 public:
 	Example()
@@ -51,12 +52,13 @@ public:
 		{
 		case gamestate::Game:
 			// Handle snake input
-			snake->handleinput(this);
+			if (!changeddirection) snake->handleinput(this, &changeddirection);
 
 			// Choose if we want to do anything this frame, running at FrameTime fps
 			AccumulatedTime += fElapsedTime;
 			if (AccumulatedTime >= FrameTime)
 			{
+				changeddirection = false;
 				AccumulatedTime -= FrameTime;
 				fElapsedTime = FrameTime;
 
@@ -64,7 +66,7 @@ public:
 				DrawRect(olc::vi2d{ 0,0 }, olc::vi2d{ GAME_WIDTH * GAME_SCALE - 1, GAME_HEIGHT * GAME_SCALE - 1 }, olc::DARK_GREEN);
 				DrawRect(olc::vi2d{ GAME_SCALE, GAME_SCALE }, olc::vi2d{ (GAME_WIDTH - 1) * GAME_SCALE - GAME_SCALE, (GAME_HEIGHT - 1) * GAME_SCALE - GAME_SCALE }, olc::DARK_GREEN);
 
-				if (rand() % 10 <= 1)
+				if (rand() % 10 <= (snake->testmode ? 9 : 1)) 
 					snake->foods->add();
 
 				int sn = snake->move();
@@ -80,6 +82,13 @@ public:
 			// Draw and move snake
 			snake->draw(this);
 
+			if (GetKey(olc::ESCAPE).bPressed)
+			{
+				state = gamestate::Menu;
+				gameover = true;
+				snake->reset();
+			}
+
 			break;
 		case gamestate::Menu:
 			Clear(bgc);
@@ -87,16 +96,16 @@ public:
 
 			SetPixelMode(olc::Pixel::MASK);
 
-			CenteredString(30, "Raybarg's  Snake", olc::DARK_GREEN, GAME_SCALE);
+			CenteredString(30, "Raybarg's  Snake", olc::DARK_GREEN, 4);
 
-			CenteredString(400, "Or press ESC to exit...", olc::DARK_GREEN, GAME_SCALE / 2);
+			CenteredString(400, "Or press ESC to exit...", olc::DARK_GREEN, 2);
 			
 			if (gameover)
 			{
-				CenteredString(120, "Game Over!", olc::RED, GAME_SCALE / 2);
+				CenteredString(120, "Game Over!", olc::RED, 2);
 
 				std::string sc = "Score: " + std::to_string(score);
-				CenteredString(170, sc, olc::RED, GAME_SCALE / 2);
+				CenteredString(170, sc, olc::RED, 2);
 			}
 
 			if (GetMouseX() >= ((GAME_WIDTH * GAME_SCALE) / 2 - 50) && GetMouseX() <= ((GAME_WIDTH * GAME_SCALE) / 2 + 50) &&
@@ -108,7 +117,8 @@ public:
 				}
 				else
 				{
-					if (GetMouse(0).bReleased) {
+					if (GetMouse(0).bReleased) 
+					{
 						score = 0;
 						state = gamestate::Game;
 					}
@@ -123,6 +133,24 @@ public:
 				DrawSprite(btnPos, btnPlay.get());
 			}
 
+			// Test mode checker:
+			DrawRect(olc::vi2d{ 10, 570 }, olc::vi2d{ 10, 10 }, olc::CYAN);
+			if (snake->testmode)
+			{
+				FillRect(olc::vi2d{ 12, 572 }, olc::vi2d{ 7, 7 }, olc::DARK_CYAN);
+			}
+			DrawString(olc::vi2d{ 24, 572 }, "Test mode (only send sparks if you hit your body and way more food!)", olc::DARK_CYAN);
+			if (GetMouseX() >= 10 && GetMouseX() <= 20 &&
+				GetMouseY() >= 570 && GetMouseY() <= 580)
+			{
+				DrawRect(olc::vi2d{ 10, 570 }, olc::vi2d{ 10, 10 }, olc::WHITE);
+				if (GetMouse(0).bReleased)
+				{
+					snake->testmode = !snake->testmode;
+				}
+			}
+
+
 			if (GetKey(olc::ESCAPE).bPressed)
 				return false;
 
@@ -133,8 +161,8 @@ public:
 
 	void CenteredString(int y, std::string str, olc::Pixel color, int scale)
 	{
-		int length = str.length() / 2;
-		olc::vi2d txtPos = { ((GAME_WIDTH * GAME_SCALE) / 2 - (length * scale) * GAME_SCALE), y };
+		int length = str.length();
+		olc::vi2d txtPos = { ((GAME_WIDTH * GAME_SCALE) / 2 - (length * 8 * scale) / 2), y };
 		DrawString(txtPos, str, color, scale);
 	}
 

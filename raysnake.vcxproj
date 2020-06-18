@@ -146,6 +146,7 @@
     <ClInclude Include="food.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="snake.h" />
+    <ClInclude Include="spark.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

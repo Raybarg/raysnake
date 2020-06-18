@@ -35,15 +35,14 @@
 /.vs/
 
 ### Output and Cache Directories ###
-/*/External/
+/External/
 /Debug/
-/*/Debug/
-/*/Docs/
-/*/Release/
-/*/build/
-/*/bin/
-/*/out/
-/*/cmake-build-*/
+/Docs/
+/Release/
+/build/
+/bin/
+/out/
+/cmake-build-*/
 
 ### User specifics ###
 *.vcxproj.filters

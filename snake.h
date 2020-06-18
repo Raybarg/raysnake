@@ -3,10 +3,13 @@
 #ifndef RAYSNAKE_SNAKE_H_
 #define RAYSNAKE_SNAKE_H_
 
+#define MAXSPARKS 1000
+
 #include <cstdlib>
 #include <memory>
 #include "olcPixelGameEngine.h"
 #include "food.h"
+#include "spark.h"
 
 namespace raysnake
 {
@@ -21,6 +24,8 @@ namespace raysnake
 		std::unique_ptr<olc::vi2d[]> body;
 		int scale;
 
+		raysnake::Spark sparks[MAXSPARKS];
+
 		olc::vi2d gamearea;
 		Snake_Direction direction;
 		int tail;
@@ -29,10 +34,13 @@ namespace raysnake
 	public:
 		Snake(int size, olc::vi2d, int scale);
 
-		void handleinput(olc::PixelGameEngine*);
+		bool testmode;
+
+		void handleinput(olc::PixelGameEngine*, bool*);
 		void draw(olc::PixelGameEngine*);
 		int move();
 		void reset();
+		void makeitspark(int);
 	};
 
 	Snake::Snake(int size, olc::vi2d area, int gamescale)
@@ -42,27 +50,45 @@ namespace raysnake
 		, foods{new raysnake::Food(size, area, gamescale)}
 		, scale{gamescale}
 	{
+		testmode = false;
 		reset();
 	}
 
-	void Snake::handleinput(olc::PixelGameEngine* pge)
+	void Snake::handleinput(olc::PixelGameEngine* pge, bool* changed)
 	{
 		// Set new direction based on input and prevent going against the direction we are coming from
 		if (pge->GetKey(olc::DOWN).bPressed)
+		{
 			if (direction != Snake_Direction::Up)
+			{
 				direction = Snake_Direction::Down;
-
-		if (pge->GetKey(olc::UP).bPressed)
+				*changed = true;
+			}
+		}
+		else if (pge->GetKey(olc::UP).bPressed)
+		{
 			if (direction != Snake_Direction::Down)
+			{
 				direction = Snake_Direction::Up;
-
-		if (pge->GetKey(olc::LEFT).bPressed)
+				*changed = true;
+			}
+		}
+		else if (pge->GetKey(olc::LEFT).bPressed)
+		{
 			if (direction != Snake_Direction::Right)
+			{
 				direction = Snake_Direction::Left;
-
-		if (pge->GetKey(olc::RIGHT).bPressed)
+				*changed = true;
+			}
+		}
+		else if (pge->GetKey(olc::RIGHT).bPressed)
+		{
 			if (direction != Snake_Direction::Left)
+			{
 				direction = Snake_Direction::Right;
+				*changed = true;
+			}
+		}
 	}
 
 	void Snake::draw(olc::PixelGameEngine* pge)
@@ -86,11 +112,16 @@ namespace raysnake
 			if (head_tmp > (snakesize-1)) head_tmp = 0;
 		}
 		foods->draw(pge);
+
+		// Draw sparks
+		for (int i = 0; i < MAXSPARKS; i++)
+			sparks[i].draw(pge);
 	}
 
 	int Snake::move()
 	{
 		int retval = 0;
+		int i = 0;
 		olc::vi2d temp = body[head];
 		switch (direction)
 		{
@@ -109,10 +140,13 @@ namespace raysnake
 		}
 
 		// Body collision
-		for (int i = 0; i < snakesize; i++)
+		for (i = 0; i < snakesize; i++)
 		{
-			if ((body[i].x == temp.x) && (body[i].y == temp.y) && (head != i) && (head < tail))
-				retval = 1;
+			if ((body[i].x == temp.x) && (body[i].y == temp.y) && (head != i) && (body[i].x > -1))
+				if (testmode)
+					makeitspark(1);
+				else
+					retval = 1;
 		}
 
 		if (!foods->collision(body[head]))
@@ -120,13 +154,15 @@ namespace raysnake
 			body[tail].x = -1;
 			body[tail].y = -1;
 			tail--;
+
 		}
 		else
 		{
+			makeitspark(0);
 			retval = 2;
 		}
-		head--;
 
+		head--;
 		if (head < 0) head += snakesize;
 		body[head] = temp;
 		if (tail < 0) tail += snakesize;
@@ -154,6 +190,17 @@ namespace raysnake
 		head = 0;
 		tail = 4;
 		foods->reset();
+	}
+
+	void Snake::makeitspark(int style)
+	{
+		int nr = 0;
+		for (int i = 0; i < MAXSPARKS; i++)
+			if (!sparks[i].isalive())
+			{
+				sparks[i].set(body[head], scale, style);
+				if (++nr > 100) break;
+			}
 	}
 }
 
