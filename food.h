@@ -17,8 +17,11 @@ namespace raysnake
 		std::unique_ptr<olc::vi2d[]> foods;
 		int scale;
 
+		std::unique_ptr<olc::Sprite> sprfood;
+
 	public:
 		Food(int size, olc::vi2d area, int);
+		~Food();
 
 		void add();
 		bool collision(olc::vi2d head);
@@ -32,6 +35,7 @@ namespace raysnake
 		, gamearea{area}
 		, scale{ gamescale }
 	{
+		sprfood = std::make_unique<olc::Sprite>("./img/food.png");
 		reset();
 	}
 
@@ -72,7 +76,7 @@ namespace raysnake
 		{
 			if (foods[i].x > -1)
 			{
-				pge->FillRect(foods[i] * scale, olc::vi2d{ scale, scale }, olc::GREEN);
+				pge->DrawSprite(foods[i] * scale, sprfood.get());
 			}
 		}
 	}
@@ -84,6 +88,11 @@ namespace raysnake
 			foods[i].x = -1;
 			foods[i].y = -1;
 		}
+	}
+
+	Food::~Food()
+	{
+
 	}
 }
 

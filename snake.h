@@ -24,6 +24,9 @@ namespace raysnake
 		std::unique_ptr<olc::vi2d[]> body;
 		int scale;
 
+		std::unique_ptr<olc::Sprite> sprhead;
+		std::unique_ptr<olc::Sprite> sprbody;
+
 		raysnake::Spark sparks[MAXSPARKS];
 
 		olc::vi2d gamearea;
@@ -51,6 +54,10 @@ namespace raysnake
 		, scale{gamescale}
 	{
 		testmode = false;
+
+		sprhead = std::make_unique<olc::Sprite>("./img/head.png");
+		sprbody = std::make_unique<olc::Sprite>("./img/body.png");
+
 		reset();
 	}
 
@@ -101,11 +108,11 @@ namespace raysnake
 			drawPos = body[head_tmp] * scale;
 			if (head_tmp == head)
 			{
-				pge->FillRect(drawPos, olc::vi2d{ scale, scale }, olc::RED);
+				pge->DrawSprite(drawPos, sprhead.get());
 			}
 			else
 			{
-				pge->FillRect(drawPos, olc::vi2d{ scale, scale }, olc::WHITE);
+				pge->DrawSprite(drawPos, sprbody.get());
 			}
 			if (head_tmp == tail) break;
 			head_tmp++;

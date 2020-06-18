@@ -42,7 +42,7 @@ public:
 
 		btnPlay = std::make_unique<olc::Sprite>("./img/play_button.png");
 		btnPlayHover = std::make_unique<olc::Sprite>("./img/play_button_hover.png"); 
-		btnPlayPressed = std::make_unique<olc::Sprite>("./img/play_button_pressed.png");	
+		btnPlayPressed = std::make_unique<olc::Sprite>("./img/play_button_pressed.png");
 		return true;
 	}
 
